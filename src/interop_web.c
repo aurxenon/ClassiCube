@@ -131,7 +131,7 @@ void interop_SyncFS(void) {
 		FS.syncfs(false, function(err) { 
 			if (!err) return;
 			console.log(err);
-			ccall('Platform_LogError', 'void', ['string'], ['&cError saving IndexedDB:']);
+			ccall('Platform_LogError', 'void', ['string'], ['&cError saving files to IndexedDB:']);
 			ccall('Platform_LogError', 'void', ['string'], ['   &c' + err]);
 		}); 
 	});
@@ -318,13 +318,15 @@ void interop_OpenKeyboard(const char* text, int type, const char* placeholder) {
 	}, text, type, placeholder);
 }
 
+/* NOTE: When pressing 'Go' on the on-screen keyboard, some web browsers add \n to value */
 void interop_SetKeyboardText(const char* text) {
 	EM_ASM_({
 		if (!window.cc_inputElem) return;
 		var str = UTF8ToString($0);
-
-		if (str == window.cc_inputElem.value) return;
-		window.cc_inputElem.value = str;
+		var cur = window.cc_inputElem.value;
+		
+		if (cur.length && cur[cur.length - 1] == '\n') { cur = cur.substring(0, cur.length - 1); }
+		if (str != cur) window.cc_inputElem.value = str;
 	}, text);
 }
 
