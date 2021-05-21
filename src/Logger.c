@@ -225,10 +225,11 @@ static void DumpFrame(cc_string* trace, void* addr) {
 #ifndef __USE_GNU
 #define __USE_GNU
 #endif
-#include <dlfcn.h>
+//#include <dlfcn.h>
 #undef __USE_GNU
 
 static void DumpFrame(cc_string* trace, void* addr) {
+	#ifndef CC_BUILD_IRIX
 	cc_string str; char strBuffer[384];
 	Dl_info s;
 
@@ -239,7 +240,14 @@ static void DumpFrame(cc_string* trace, void* addr) {
 
 	PrintFrame(&str, (cc_uintptr)addr, (cc_uintptr)s.dli_saddr, s.dli_sname, s.dli_fname);
 	String_AppendString(trace, &str);
-	Logger_Log(&str);
+	Logger_Log(&str);*/
+
+	#else
+	cc_string str;
+	char* strBuffer = "DumpFrame(cc_string* trace, void* addr)";
+	String_InitArray(str, strBuffer);
+	Logger_Log(trace);
+	#endif
 }
 #endif
 
@@ -332,8 +340,9 @@ void Logger_Backtrace(cc_string* trace, void* ctx) {
 	String_AppendConst(trace, _NL);
 }
 #elif defined CC_BUILD_POSIX
-#include <execinfo.h>
+//#include <execinfo.h>
 void Logger_Backtrace(cc_string* trace, void* ctx) {
+	#ifndef CC_BUILD_IRIX
 	void* addrs[MAX_BACKTRACE_FRAMES];
 	int i, frames = backtrace(addrs, MAX_BACKTRACE_FRAMES);
 
@@ -341,6 +350,7 @@ void Logger_Backtrace(cc_string* trace, void* ctx) {
 		DumpFrame(trace, addrs[i]);
 	}
 	String_AppendConst(trace, _NL);
+	#endif
 }
 #endif
 static void DumpBacktrace(cc_string* str, void* ctx) {
@@ -542,6 +552,10 @@ static void PrintRegisters(cc_string* str, void* ctx) {
 	#error "Unknown CPU architecture"
 #endif
 }
+#elif defined CC_BUILD_IRIX
+static void PrintRegisters(cc_string* str, void* ctx) {
+	return;
+}
 #elif defined CC_BUILD_NETBSD
 /* See /usr/include/i386/mcontext.h */
 static void PrintRegisters(cc_string* str, void* ctx) {
@@ -599,12 +613,14 @@ static void PrintRegisters(cc_string* str, void* ctx) {
 }
 #endif
 static void DumpRegisters(void* ctx) {
+	#ifndef CC_BUILD_IRIX
 	cc_string str; char strBuffer[768];
 	String_InitArray(str, strBuffer);
 
 	String_AppendConst(&str, "-- registers --" _NL);
 	PrintRegisters(&str, ctx);
 	Logger_Log(&str);
+	#endif
 }
 
 

@@ -149,8 +149,11 @@ int main(int argc, char** argv) {
 #endif
 	static char ipBuffer[STRING_SIZE];
 	cc_result res;
+	printf("Logger_Hook()\n");
 	Logger_Hook();
+	printf("Platform_Init()\n");
 	Platform_Init();
+	printf("Window_Init()\n");
 	Window_Init();
 	
 	res = Platform_SetDefaultCurrentDirectory(argc, argv);

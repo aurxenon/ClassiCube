@@ -326,7 +326,7 @@ cc_uint64 Stopwatch_Measure(void) { return gethrtime(); }
 cc_uint64 Stopwatch_Measure(void) {
 	struct timespec t;
 	/* TODO: CLOCK_MONOTONIC_RAW ?? */
-	clock_gettime(CLOCK_MONOTONIC, &t);
+	clock_gettime(CLOCK_REALTIME, &t);
 	return (cc_uint64)t.tv_sec * NS_PER_SEC + t.tv_nsec;
 }
 #endif
@@ -521,12 +521,12 @@ cc_result Directory_Enum(const cc_string* dirPath, void* obj, Directory_EnumCall
 		String_AppendUtf8(&path, src, len);
 
 		/* TODO: fallback to stat when this fails */
-		if (entry->d_type == DT_DIR) {
+		/*if (entry->d_type == DT_DIR) {
 			res = Directory_Enum(&path, obj, callback);
 			if (res) { closedir(dirPtr); return res; }
-		} else {
+		} else {*/
 			callback(&path, obj);
-		}
+		//}
 		errno = 0;
 	}
 
@@ -1226,6 +1226,10 @@ static cc_result Process_RawGetExePath(char* path, int* len) {
 	*len = String_CalcLen(path, NATIVE_STR_LEN);
 	return 0;
 }
+#elif defined CC_BUILD_IRIX
+static cc_result Process_RawGetExePath(char* path, int* len) {
+	return 0;
+}
 #elif defined CC_BUILD_OPENBSD
 static cc_result Process_RawGetExePath(char* path, int* len) {
 	static int mib[4] = { CTL_KERN, KERN_PROC_ARGS, 0, KERN_PROC_ARGV };
@@ -1686,6 +1690,7 @@ static void Platform_InitPosix(void) {
 void Platform_Free(void) { }
 
 cc_bool Platform_DescribeError(cc_result res, cc_string* dst) {
+	#ifndef CC_BUILD_IRIX
 	char chars[NATIVE_STR_LEN];
 	int len;
 
@@ -1699,6 +1704,7 @@ cc_bool Platform_DescribeError(cc_result res, cc_string* dst) {
 
 	len = String_CalcLen(chars, NATIVE_STR_LEN);
 	String_AppendUtf8(dst, chars, len);
+	#endif
 	return true;
 }
 

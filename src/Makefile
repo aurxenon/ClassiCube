@@ -39,6 +39,13 @@ CC=gcc
 LIBS=-lm -lsocket -lX11 -lXi -lGL
 endif
 
+ifeq ($(PLAT),irix64)
+CC=gcc
+CFLAGS=-g -pipe -fno-math-errno -I /usr/sgug/include -Wl,--allow-shlib-undefined
+LIBS=-lm -lcurl -lGL -lSDL2 -Wl,--allow-shlib-undefined
+LDFLAGS=-g
+endif
+
 ifeq ($(PLAT),darwin)
 LIBS=
 LDFLAGS=-rdynamic -framework Carbon -framework AGL -framework OpenGL
@@ -88,6 +95,8 @@ mingw:
 	$(MAKE) $(ENAME) PLAT=mingw -j$(JOBS)
 sunos:
 	$(MAKE) $(ENAME) PLAT=sunos -j$(JOBS)
+irix64:
+	$(MAKE) $(ENAME) PLAT=irix64 -j$(JOBS)
 darwin:
 	$(MAKE) $(ENAME) PLAT=darwin -j$(JOBS)
 freebsd:

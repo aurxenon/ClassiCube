@@ -144,9 +144,13 @@ static void Window_SDLFail(const char* place) {
 }
 
 void Window_Init(void) {
+	printf("SDL2 Window_Init()\n");
 	SDL_DisplayMode mode = { 0 };
+	printf("SDL_DisplayMode mode\n");
 	SDL_Init(SDL_INIT_VIDEO);
+	printf("SDL_Init()\n");
 	SDL_GetDesktopDisplayMode(0, &mode);
+	printf("SDL_GetDesktopDisplayMode()\n");
 
 	DisplayInfo.Width  = mode.w;
 	DisplayInfo.Height = mode.h;
